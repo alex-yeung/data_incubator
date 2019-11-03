@@ -1,5 +1,5 @@
 ---
-title: "R Notebook for Data Incubator (1st graph)"
+title: "R Notebook for Data Incubator"
 output:
   html_document:
     df_print: paged
@@ -64,4 +64,9 @@ FEMA_map <- ggplot(data = FEMA_state_average,
             breaks = c(0, 10000, 20000, 30000, 40000)) +
             labs(title = "Amount paid per flood insurance building claim (1973-2019)", fill = "USD$")
 FEMA_map
+
+
+
+
+
 ```
