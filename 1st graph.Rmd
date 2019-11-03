@@ -37,7 +37,7 @@ latlong2state <- function(pointsDF) {
   stateNames[indices]
 }
 
-FEMA <- read_csv("FEMA.csv")
+FEMA <- read_csv("C:/Users/yeung/Documents/FEMA.csv")
 FEMA <- FEMA[!is.na(FEMA$latitude), ]
 FEMA <- FEMA[!is.na(FEMA$longitude), ]
 
