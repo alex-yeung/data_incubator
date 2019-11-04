@@ -3,6 +3,8 @@ title: "R Notebook for Data Incubator (1st graph)"
 output:
   html_document:
     df_print: paged
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r = FALSE}
@@ -49,7 +51,7 @@ FEMA <- filter(FEMA, FEMA$amountpaidonbuildingclaim > 0)
 FEMA <- FEMA[!is.na(FEMA$state),]
 
 FEMA_average <- FEMA %>% group_by(state) %>% 
-  summarise(total.amount = sum(amountpaidonbuildingclaim)/n())
+  dplyr::summarise(total.amount = sum(amountpaidonbuildingclaim)/n())
 
 us_states <- map_data("state")
 
@@ -69,6 +71,7 @@ FEMA_map
 
 
 #2nd graph
+library(dplyr)
 library(plyr)
 
 FEMA <- FEMA[!is.na(FEMA$floodzone),]
@@ -78,5 +81,36 @@ FEMA$floodzone <- revalue(FEMA$floodzone, c("B" = "Low-Moderate", "C" = "Low-Mod
 FEMA$floodzone <- replace(x = FEMA$floodzone, 
                    list =  !FEMA$floodzone %in% 'Low-Moderate', 
                    values =  'High')
+
+FEMA$Year <- format(as.Date(FEMA$dateofloss, format="%Y/%m/%d"), "%Y")
+FEMA_a.average <- FEMA %>% group_by(Year, floodzone) %>%
+  dplyr::summarise(average.amount = sum(amountpaidonbuildingclaim)/n())
+
+
+FEMA_plot <- ggplot(data = FEMA, aes(x= Year, y = amountpaidonbuildingclaim, group = floodzone, color = floodzone)) +
+            ge
+                      geom_bar(stat= "identity", color="black", position=position_dodge()) +
+                      geom_errorbar(aes(ymin = amountpaidonbuildingclaim-sd, ymax = amountpaidonbuildingclaim+sd), width = 0.2,
+                                    position = position_dodge(0.9))
+FEMA_plot
+
+                    
+                    
+                    
+                    
+
+FEMA_average2 <- FEMA %>% group_by(floodzone) %>%
+  dplyr::summarise(average.amount = sum(amountpaidonbuildingclaim)/n())
+
+
+FEMA <- FEMA[!is.na(FEMA$basefloodelevation),]
+FEMA <- FEMA[!is.na(FEMA$lowestfloorelevation),]
+FEMA <- filter(FEMA, FEMA$basefloodelevation >= -50)
+
+FEMA_plot <- ggplot(data = FEMA, aes(elevationdifference, amountpaidonbuildingclaim, colour = floodzone)) +
+  geom_point() + theme_bw()
+
+FEMA_plot
+
 
 ```
