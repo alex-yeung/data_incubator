@@ -75,14 +75,15 @@ library(dplyr)
 library(plyr)
 library(quantmod)
 library(stringr)
+library(ggplot2)
 
 FEMA <- FEMA[!is.na(FEMA$floodzone),]
 FEMA$floodzone <- as.character(FEMA$floodzone)
-FEMA$floodzone <- revalue(FEMA$floodzone, c("B" = "Low-Moderate", "C" = "Low-Moderate", "X" = "Low-Moderate"))
+FEMA$floodzone <- revalue(FEMA$floodzone, c("B" = "Low-Moderate risk", "C" = "Low-Moderate risk", "X" = "Low-Moderate risk"))
 
 FEMA$floodzone <- replace(x = FEMA$floodzone, 
-                   list =  !FEMA$floodzone %in% 'Low-Moderate', 
-                   values =  'High')
+                   list =  !FEMA$floodzone %in% 'Low-Moderate risk', 
+                   values =  'High risk')
 
 FEMA$Year <- format(as.Date(FEMA$dateofloss, format="%Y/%m/%d"), "%Y")
 FEMA_a.average <- FEMA %>% group_by(Year, floodzone) %>%
@@ -103,10 +104,18 @@ CPI <- cbind(CPI, Year)
 
 FEMA_a.average <- merge(FEMA_a.average, CPI, by = "Year")
 FEMA_a.average$adjusted.amount <- FEMA_a.average$average.amount/FEMA_a.average$CPI
+FEMA_a.average$Year <- as.numeric(FEMA_a.average$Year) 
 
 FEMA_plot <- ggplot(data = FEMA_a.average, aes(x= Year, y = adjusted.amount, group = floodzone, color = floodzone)) +
           geom_line() +
-          geom_point() + theme_bw()
+          geom_point() + theme_bw() +
+          theme(axis.title.x=element_blank(),panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+          scale_x_continuous(breaks=seq(1973, 2019, 5)) +
+          scale_y_continuous(breaks=seq(0, 20000, 5000), limits = c(0, 18000), expand = c(0,0)) +
+          ggtitle("Trends of CPI-adjusted amount paid per flood insurance building claim in the US") +
+          scale_color_discrete(name="Flood hazard zone") +
+          xlab("Year") +
+          ylab("CPI-adjusted claim amount (USD$)")
 
 FEMA_plot
 ```
