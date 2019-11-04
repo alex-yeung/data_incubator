@@ -66,7 +66,7 @@ FEMA_map <- ggplot(data = FEMA_state_average,
             theme_map() +
             scale_fill_gradient2(low = "blue", high = "red",
             breaks = c(0, 10000, 20000, 30000, 40000)) +
-            labs(title = "Amount paid per flood insurance building claim (1973-2019)", fill = "USD$")
+            labs(title = "Average amount paid per flood insurance building claim (1973-2019)", fill = "USD$")
 FEMA_map
 
 
