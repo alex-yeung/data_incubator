@@ -73,6 +73,8 @@ FEMA_map
 #2nd graph
 library(dplyr)
 library(plyr)
+library(quantmod)
+library(stringr)
 
 FEMA <- FEMA[!is.na(FEMA$floodzone),]
 FEMA$floodzone <- as.character(FEMA$floodzone)
@@ -86,31 +88,25 @@ FEMA$Year <- format(as.Date(FEMA$dateofloss, format="%Y/%m/%d"), "%Y")
 FEMA_a.average <- FEMA %>% group_by(Year, floodzone) %>%
   dplyr::summarise(average.amount = sum(amountpaidonbuildingclaim)/n())
 
+FEMA$floodzone <- as.factor(FEMA$floodzone)
 
-FEMA_plot <- ggplot(data = FEMA, aes(x= Year, y = amountpaidonbuildingclaim, group = floodzone, color = floodzone)) +
-            ge
-                      geom_bar(stat= "identity", color="black", position=position_dodge()) +
-                      geom_errorbar(aes(ymin = amountpaidonbuildingclaim-sd, ymax = amountpaidonbuildingclaim+sd), width = 0.2,
-                                    position = position_dodge(0.9))
-FEMA_plot
+getSymbols("CPIAUCSL", src='FRED')
+avg.cpi <- apply.yearly(CPIAUCSL, mean)
+cf <- avg.cpi/as.numeric(avg.cpi['1973'])
+cf <- cf[-c(1:26),]
 
-                    
-                    
-                    
-                    
+CPI <- str_split_fixed(cf$CPIAUCSL, " ", 1)
+CPI <- as.numeric(CPI)
 
-FEMA_average2 <- FEMA %>% group_by(floodzone) %>%
-  dplyr::summarise(average.amount = sum(amountpaidonbuildingclaim)/n())
+Year <- c(1973:2019)
+CPI <- cbind(CPI, Year)
 
+FEMA_a.average <- merge(FEMA_a.average, CPI, by = "Year")
+FEMA_a.average$adjusted.amount <- FEMA_a.average$average.amount/FEMA_a.average$CPI
 
-FEMA <- FEMA[!is.na(FEMA$basefloodelevation),]
-FEMA <- FEMA[!is.na(FEMA$lowestfloorelevation),]
-FEMA <- filter(FEMA, FEMA$basefloodelevation >= -50)
-
-FEMA_plot <- ggplot(data = FEMA, aes(elevationdifference, amountpaidonbuildingclaim, colour = floodzone)) +
-  geom_point() + theme_bw()
+FEMA_plot <- ggplot(data = FEMA_a.average, aes(x= Year, y = adjusted.amount, group = floodzone, color = floodzone)) +
+          geom_line() +
+          geom_point() + theme_bw()
 
 FEMA_plot
-
-
 ```
