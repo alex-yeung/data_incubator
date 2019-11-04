@@ -17,6 +17,8 @@ library(mapproj)
 library(ggthemes)
 library(maptools)
 
+#1st graph
+
 latlong2state <- function(pointsDF) {
   # Prepare SpatialPolygons object with one SpatialPolygon
   # per state (plus DC, minus HI & AK)
@@ -66,7 +68,15 @@ FEMA_map <- ggplot(data = FEMA_state_average,
 FEMA_map
 
 
+#2nd graph
+library(plyr)
 
+FEMA <- FEMA[!is.na(FEMA$floodzone),]
+FEMA$floodzone <- as.character(FEMA$floodzone)
+FEMA$floodzone <- revalue(FEMA$floodzone, c("B" = "Low-Moderate", "C" = "Low-Moderate", "X" = "Low-Moderate"))
 
+FEMA$floodzone <- replace(x = FEMA$floodzone, 
+                   list =  !FEMA$floodzone %in% 'Low-Moderate', 
+                   values =  'High')
 
 ```
